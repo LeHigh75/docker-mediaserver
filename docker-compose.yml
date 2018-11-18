@@ -1,0 +1,255 @@
+version: '3'
+
+services:
+  
+  plex:
+    image: plexinc/pms-docker
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/plexmediaserver:/config
+      - /home/lehigh/medias:/data
+      - /tmp:/movies:/transcode
+    ports:
+      - 32400:32400/tcp
+      - 3005:3005/tcp
+      - 8324:8324/tcp
+      - 32469:32469/tcp
+      - 1900:1900/udp
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+    environment:
+      - TZ="Europe/Paris"
+      - ADVERTISE_IP=https://plex.lehigh.fr/
+      - PLEX_UID=1000
+      - PLEX_GID=1000
+      - HOSTNAME=terrier
+      - PLEX_CLAIM=y0wjko0xhh6hrw45rxjsjpxx1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=plex"
+      - "traefik.frontend.rule=Host:plex.lehigh.fr"  
+      - "traefik.port=32400"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=plex.lehigh.fr"
+
+  radarr:
+    image: linuxserver/radarr
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/radarr:/config
+      - /home/lehigh/downloads:/downloads
+      - /home/lehigh/medias/movies:/movies
+    ports:
+      - 7878:7878
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=radarr"
+      - "traefik.frontend.rule=Host:radarr.lehigh.fr"  
+      - "traefik.port=7878"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=radarr.lehigh.fr"
+  
+  sonarr:
+    image: linuxserver/sonarr
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/sonarr:/config
+      - /home/lehigh/downloads:/downloads
+      - /home/lehigh/medias/movies:/movies
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=sonarr"
+      - "traefik.frontend.rule=Host:sonarr.lehigh.fr"  
+      - "traefik.port=8989"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=sonarr.lehigh.fr"
+      
+  lidarr:
+    image: linuxserver/lidarr
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/lidarr:/config
+      - /home/lehigh/downloads:/downloads
+      - /home/lehigh/medias/music:/music
+    ports:
+      - 8686:8686
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=lidarr"
+      - "traefik.frontend.rule=Host:lidarr.lehigh.fr"  
+      - "traefik.port=8686"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=lidarr.lehigh.fr"
+      
+  bazarr:
+    image: linuxserver/bazarr
+    networks:
+      - traefik_proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+    volumes:
+      - /home/lehigh/bazarr:/config
+      - /home/lehigh/medias/movies:/movies
+      - /home/lehigh/medias/tvshows:/tv
+    ports:
+      - 6767:6767
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=bazarr"
+      - "traefik.frontend.rule=Host:bazarr.lehigh.fr"  
+      - "traefik.port=6767"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=bazarr.lehigh.fr"
+
+
+  organizr:
+    image: lsiocommunity/organizr
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/organizr:/config
+    ports:
+      - 8089:80
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=organizr"
+      - "traefik.frontend.rule=Host:organizr.lehigh.fr"  
+      - "traefik.port=8089"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=organizr.lehigh.fr"
+      
+  jackett:
+    image: linuxserver/jackett
+    networks:
+      - traefik_proxy
+    volumes:
+      - /home/lehigh/jackett:/config
+      - /home/lehigh/downloads:/downloads
+      - /etc/localtime:/etc/localtime
+    ports:
+      - 9117:9117
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=jackett"
+      - "traefik.frontend.rule=Host:jackett.lehigh.fr"  
+      - "traefik.port=9117"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=jackett.lehigh.fr"
+
+  ombi:
+    image: linuxserver/ombi
+    volumes:
+      - /home/lehigh/ombi:/config
+    ports:
+      - 3579:3579
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    networks:
+      - traefik_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=ombi"
+      - "traefik.frontend.rule=Host:request.lehigh.fr"
+      - "traefik.port=3579"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=request.lehigh.fr"
+      
+  tautulli:
+    image: linuxserver/tautulli
+    volumes:
+      - /home/lehigh/tautulli:/config
+      - /home/lehigh/plexmediaserver/Library/Application Support/Plex Media Server/Logs:/logs
+    ports:
+      - 8181:8181
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    networks:
+      - traefik_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=tautulli"
+      - "traefik.frontend.rule=Host:plexpy.lehigh.fr"
+      - "traefik.port=8181"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.SSLHost=plexpy.lehigh.fr"
+      
+  transmission:
+    image: linuxserver/transmission
+    volumes:
+      - /home/lehigh/transmission:/config
+      - /home/lehigh/downloads:/downloads
+      - /home/lehigh/downloads/watch:/watch
+      - /etc/localtime:/etc/localtime
+    ports:
+      - 51413:51413
+      - 51413:51413/udp
+      - 9091:9091
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ="Europe/Paris"
+    networks:
+      - traefik_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=transmission"
+      - "traefik.frontend.rule=Host:dl.lehigh.fr"
+      - "traefik.port=9091"
+      - "traefik.docker.network=traefik_proxy"
+      - "traefik.frontend.headers.SSLRedirect=true"
+      - "traefik.frontend.headers.STSSeconds=315360000"
+      - "traefik.frontend.headers.browserXSSFilter=true"
+      - "traefik.frontend.headers.contentTypeNosniff=true"
+      - "traefik.frontend.headers.forceSTSHeader=true"
+      - "traefik.frontend.headers.SSLHost=dl.lehigh.fr"
+      - "traefik.frontend.headers.STSIncludeSubdomains=true"
+      - "traefik.frontend.headers.STSPreload=true"
+      - "traefik.frontend.headers.frameDeny=true"
+
+networks:
+  traefik_proxy:
+    external: true
+    driver: overlay
